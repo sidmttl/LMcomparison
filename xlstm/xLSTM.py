@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mLSTMblock import mLSTMblock
-from sLSTMblock import sLSTMblock
+from xlstm.mLSTMblock import mLSTMblock
+from xlstm.sLSTMblock import sLSTMblock
 
 class xLSTM(nn.Module):
     def __init__(self, layers, x_example, depth=4, factor=2):

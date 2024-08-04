@@ -6,7 +6,7 @@ from tqdm.auto import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 from math import *
-from xLSTM import xLSTM as xlstm
+from xlstm.xLSTM import xLSTM as xlstm
 
 
 # batch_size = 64 # how many independent sequences will we process in parallel?
