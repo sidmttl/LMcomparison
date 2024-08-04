@@ -2,9 +2,6 @@ import wandb
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from tqdm.auto import tqdm
-import matplotlib.pyplot as plt
-import numpy as np
 from math import *
 from xlstm.xLSTM import xLSTM as xlstm
 

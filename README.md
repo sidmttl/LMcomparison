@@ -10,7 +10,8 @@ The steps to run this project are -
 Our project is packaged using ``pyenv`` and ``poetry`` to handle environment creation and package dependencies. [Setting up pyenv and poetry](https://douwevandermeij.medium.com/proper-python-setup-with-pyenv-poetry-4d8baea329a8)
 
 ```bash
-poetry use env 3.8          # uses python 3.8
+pyenv install               # installs python 3.10 from .python-version
+poetry env use 3.10         # uses python 3.10 to create virtual env
 poetry shell                # enter virtual-env shell
 poetry install --no-root    # install dependencies from pyproject.toml
 

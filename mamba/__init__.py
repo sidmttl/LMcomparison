@@ -1,1 +1,1 @@
-from mamba.mamba_model import *
+from mamba.mamba_model import MambaLanguageModel

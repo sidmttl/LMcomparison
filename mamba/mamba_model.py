@@ -2,36 +2,7 @@ import wandb
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from mamba_ssm import Mamba
-
-
-class MambaBlock(nn.Module):
-    def __init__(self, embed_dim, dropout_level=0, batch_size = 64, block_size = 256,
-                max_iters = 5000, eval_interval = 500, learning_rate = 3e-4, 
-                device = 'cuda' if torch.cuda.is_available() else 'cpu',
-                eval_iters = 200, n_embd = 384, n_head = 6, n_layer = ['m', 'm', 's'], dropout = 0.2):
-        super().__init__()
-
-        self.batch_size = batch_size # how many independent sequences will we process in parallel?
-        self.block_size = block_size # what is the maximum context length for predictions?
-        self.max_iters = max_iters
-        self.eval_interval = eval_interval
-        self.learning_rate = learning_rate
-        self.device = device
-        self.eval_iters = eval_iters
-        self.n_embd = n_embd
-        self.n_head = n_head
-        self.n_layer = n_layer
-        self.dropout = dropout
-
-        self.mamba = Mamba(d_model=embed_dim, d_state=16, d_conv=4, expand=2)
-        self.norm = nn.LayerNorm(embed_dim)
-        self.dropout = nn.Dropout(dropout_level)
-
-    def forward(self, x):
-        x = self.norm(self.mamba(x) + x)
-        return self.dropout(x)
-    
+from .mamba_block import ResidualBlock, RMSNorm
 
 class MambaLanguageModel(nn.Module):
     def __init__(self, vocab_size):
@@ -39,9 +10,10 @@ class MambaLanguageModel(nn.Module):
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, self.n_embd)
         self.position_embedding_table = nn.Embedding(self.block_size, self.n_embd)
-        self.blocks = nn.Sequential(*[MambaBlock(self.n_embd, dropout_level=self.dropout) for _ in range(self.n_layer)])
-        self.ln_f = nn.LayerNorm(self.n_embd) # final layer norm
+        self.blocks = nn.Sequential([ResidualBlock(self.n_embd) for _ in range(self.n_layer)])
+        self.ln_f = RMSNorm(self.n_embd) # final layer norm
         self.lm_head = nn.Linear(self.n_embd, vocab_size)
+        self.lm_head.weight = self.embedding.weight
 
         wandb.init(
         # set the wandb project where this run will be logged

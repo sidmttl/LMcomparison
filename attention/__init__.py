@@ -1,1 +1,1 @@
-from attention_model import *
+from .attention_model import GPTLanguageModel
