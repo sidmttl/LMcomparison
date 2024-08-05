@@ -2,19 +2,28 @@ import wandb
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from .mamba_block import ResidualBlock, RMSNorm
+from .mamba_block import MambaBlock, RMSNorm
 
 class MambaLanguageModel(nn.Module):
-    def __init__(self, vocab_size):
+    def __init__(self, vocab_size, batch_size, block_size, max_iters, eval_interval, learning_rate, n_embd, n_head,
+                n_layer, dropout):
         super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
+        
+        self.batch_size = batch_size
+        self.block_size = block_size
+        self.learning_rate = learning_rate
+        self.n_embd = n_embd
+        self.n_head = n_head
+        self.n_layer = n_layer
+        self.dropout = dropout
+        
         self.token_embedding_table = nn.Embedding(vocab_size, self.n_embd)
         self.position_embedding_table = nn.Embedding(self.block_size, self.n_embd)
-        self.blocks = nn.Sequential([ResidualBlock(self.n_embd) for _ in range(self.n_layer)])
+        self.blocks = nn.Sequential([MambaBlock(self.n_embd, d_state=16, d_conv=4, expand=2) for _ in range(self.n_layer)])
         self.ln_f = RMSNorm(self.n_embd) # final layer norm
         self.lm_head = nn.Linear(self.n_embd, vocab_size)
         self.lm_head.weight = self.embedding.weight
-
         wandb.init(
         # set the wandb project where this run will be logged
         project = "language-model",
