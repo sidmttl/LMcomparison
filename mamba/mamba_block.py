@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange, repeat, einsum
+import math
 
 class ResidualBlock(nn.Module):
     def __init__(self, d_model, d_state=16, d_conv=4, expand=2):
@@ -44,7 +45,7 @@ class MambaBlock(nn.Module):
         """
         super().__init__()
         self.d_model = d_model
-        self.dt_rank = dt_rank
+        self.dt_rank = math.ceil(self.d_model / 16)
         self.d_inner = int(expand * self.d_model)
         self.in_proj = nn.Linear(d_model, self.d_inner * 2, bias=bias)
 
@@ -58,7 +59,7 @@ class MambaBlock(nn.Module):
         )
 
         # x_proj takes in `x` and outputs the input-specific Δ, B, C
-        # self.x_proj = nn.Linear(self.d_inner, self.dt_rank + d_state * 2, bias=False)
+        self.x_proj = nn.Linear(self.d_inner, self.dt_rank + d_state * 2, bias=False)
         
         # dt_proj projects Δ from dt_rank to d_in
         self.dt_proj = nn.Linear(self.dt_rank, self.d_inner, bias=True)
