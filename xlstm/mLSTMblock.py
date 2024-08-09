@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils import BlockDiagonal, CausalConv1D
+from xlstm.utils import BlockDiagonal, CausalConv1D
 
 class mLSTMblock(nn.Module):
     def __init__(self, x_example, factor, depth, dropout=0.2):
