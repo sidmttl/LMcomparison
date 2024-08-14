@@ -1,12 +1,12 @@
 import argparse
 import pickle
 import torch
+import warnings
+import gc
 
 from attention import *
 from mamba import *
-from xlstm import *
-
-
+from xLSTMmodel import XLSTMLanguageModel
 
 def main():
     # Initialize the argument parser
@@ -51,11 +51,13 @@ def main():
     # Use the arguments
     print(f"Selected Model: {args.model}")
 
+    warnings.filterwarnings("ignore", category=FutureWarning) 
+
     torch.set_default_device('cuda' if torch.cuda.is_available() else 'cpu')
     
     # Add context
     if args.context:
-        context = torch.tensor(encode("the night class is"), dtype=torch.long)
+        context = torch.tensor(encode(args.context), dtype=torch.long)
         context = torch.unsqueeze(context, 0)
     else:
         context = torch.zeros((1, 1), dtype=torch.long)
@@ -75,11 +77,15 @@ def main():
 
 
     elif args.model == 'xlstm':
-        xlstm_model = torch.load('./models/xlstm_best_model.pt')
-        print(context, end="")
+        xlstm_model = torch.load('./models/xlstm_best_model.pt', fix_imports=True)
+        if args.context:
+            print(context, end="")
         for _ in range(500):
             context, out = xlstm_model.generate(context, max_new_tokens=1)
             print(decode(out[0].to('cpu').tolist()), end="")
+            del out
+            torch.cuda.empty_cache()
+            gc.collect()
 
 if __name__ == '__main__':
     main()
