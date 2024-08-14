@@ -5,8 +5,8 @@ from torch.nn import functional as F
 from .mamba_block import ResidualBlock
 
 class MambaLanguageModel(nn.Module):
-    def __init__(self, vocab_size, batch_size, block_size, max_iters, eval_interval, learning_rate, n_embd, n_head,
-                n_layer, dropout, device = 'cpu'):
+    def __init__(self, vocab_size, batch_size = 64, block_size = 128, max_iters = 5000, eval_interval = 500, learning_rate = 3e-4, n_embd = 384, n_head = 6,
+                n_layer = 6, dropout = 0.2, device = 'cpu'):
         super().__init__()
         # each token directly reads off the logits for the next token from a lookup table
         
