@@ -4,6 +4,9 @@ This repo contains our experiments in researching and implementing alternatives 
 
 
 ## Getting Started
+
+**Note:** Running Training and Inference requires CUDA installation. (nvcc and other dependencies)
+
 The steps to run this project are - 
 
 ### 1. Setup virtual environment
